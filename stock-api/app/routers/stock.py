@@ -23,9 +23,40 @@ from app.indicators import (
     volume_ratio,
 )
 from app.scoring import analyze_one_stock, overheat_score, score_stock
-from app.universe import MARKETS, market_for_symbol, normalize_symbol
+from app.universe import MARKETS, load_universe, market_for_symbol, normalize_symbol
 
 router = APIRouter()
+
+
+# ---------------------------------------------------------------------------
+# Search: by name or symbol across both universes
+# ---------------------------------------------------------------------------
+
+@router.get("/search")
+async def search_stocks(q: str = Query(..., min_length=1)):
+    """模糊搜尋股票名稱或代號（台股＋美股）"""
+    raw = q.strip().lower()
+    cleaned = raw.replace("-", "").replace(" ", "").replace("ky", "")
+
+    results: list[dict] = []
+    for market_id, market in MARKETS.items():
+        for s in load_universe(market):
+            name_c = s["name"].lower().replace("-", "").replace(" ", "").replace("ky", "")
+            sym_base = s["symbol"].lower().split(".")[0]
+            if cleaned in name_c or cleaned in sym_base or sym_base.startswith(cleaned):
+                results.append({**s, "market": market_id})
+
+    # Sort: exact symbol match first, then starts-with, then contains
+    def _rank(x: dict) -> int:
+        b = x["symbol"].lower().split(".")[0]
+        if b == cleaned or b == raw:
+            return 0
+        if b.startswith(cleaned):
+            return 1
+        return 2
+
+    results.sort(key=_rank)
+    return results[:10]
 
 
 def _period_to_yf(period: str) -> tuple[str, str]:
@@ -143,6 +174,9 @@ async def get_dashboard(symbol: str = Path(...)):
     stock dashboard screen (K線, KD, MACD, 布林通道, 三大法人, 技術燈號, etc.)
     """
     sym = normalize_symbol(symbol)
+    # For pure-digit Taiwan codes, also prepare the .TWO variant as fallback
+    raw_digits = symbol.strip().upper().replace(" ", "")
+    sym_two = f"{raw_digits}.TWO" if raw_digits.isdigit() else None
     market = market_for_symbol(sym)
 
     try:
@@ -183,6 +217,42 @@ async def get_dashboard(symbol: str = Path(...)):
     volumes = chart["volumes"]
     highs = chart["highs"]
     lows = chart["lows"]
+
+    # If .TW had insufficient data, retry with .TWO (上櫃股)
+    if len(closes) < 20 and sym_two and sym_two != sym:
+        sym = sym_two
+        market = market_for_symbol(sym)
+        try:
+            (
+                chart_daily,
+                chart_60m,
+                chart_weekly,
+                quotes_result,
+                institutional,
+                main_force,
+            ) = await asyncio.gather(
+                fetch_chart(sym, range_="1y", interval="1d"),
+                fetch_chart(sym, range_="60d", interval="60m"),
+                fetch_chart(sym, range_="2y", interval="1wk"),
+                fetch_quotes([sym]),
+                fetch_institutional(sym),
+                fetch_main_force(sym),
+                return_exceptions=True,
+            )
+        except Exception as exc:
+            raise HTTPException(status_code=502, detail=str(exc))
+
+        chart = _safe(chart_daily, {"dates": [], "opens": [], "highs": [], "lows": [], "closes": [], "volumes": []})
+        c60m = _safe(chart_60m, {"dates": [], "opens": [], "highs": [], "lows": [], "closes": [], "volumes": []})
+        cwk = _safe(chart_weekly, {"dates": [], "opens": [], "highs": [], "lows": [], "closes": [], "volumes": []})
+        institutional = _safe(institutional, [])
+        main_force = _safe(main_force, [])
+        quotes_map = _safe(quotes_result, {})
+        quote = quotes_map.get(sym, {})
+        closes = chart["closes"]
+        volumes = chart["volumes"]
+        highs = chart["highs"]
+        lows = chart["lows"]
 
     if len(closes) < 20:
         raise HTTPException(status_code=404, detail="歷史資料不足，無法產生儀表板。")

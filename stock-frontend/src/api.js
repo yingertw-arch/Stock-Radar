@@ -21,4 +21,5 @@ export const api = {
   kd:           (sym, period) => get(`/stock/${encodeURIComponent(sym)}/kd?period=${period}`),
   macd:         (sym, period) => get(`/stock/${encodeURIComponent(sym)}/macd?period=${period}`),
   institutional:(sym)         => get(`/stock/${encodeURIComponent(sym)}/institutional`),
+  search:       (q)           => get(`/search?q=${encodeURIComponent(q)}`),
 }
