@@ -22,6 +22,8 @@ Stock-Radar/                    ← 本 repo 根目錄（Google Drive 同步）
 ```
 
 **GitHub Repo**: https://github.com/yingertw-arch/Stock-Radar  
+**生產前端（GitHub Pages）**: https://yingertw-arch.github.io/Stock-Radar/  
+**生產後端（Vercel）**: https://stock-radar-api.vercel.app/api  
 **本機後端 port**: 8001  
 **本機前端 port**: 5173  
 **Python 路徑（本機）**: `C:\Users\User\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`
