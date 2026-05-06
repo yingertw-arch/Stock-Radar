@@ -27,6 +27,18 @@ from app.universe import MARKETS, load_universe, market_for_symbol, normalize_sy
 
 router = APIRouter()
 
+# Cache of universe Chinese names: symbol → name
+_universe_name_cache: dict[str, str] = {}
+
+def _universe_name(sym: str) -> str | None:
+    """Return Chinese name from tw_universe.json if available."""
+    global _universe_name_cache
+    if not _universe_name_cache:
+        for market in MARKETS.values():
+            for s in load_universe(market):
+                _universe_name_cache[s["symbol"]] = s["name"]
+    return _universe_name_cache.get(sym)
+
 
 # ---------------------------------------------------------------------------
 # Search: by name or symbol across both universes
@@ -263,6 +275,13 @@ async def get_dashboard(symbol: str = Path(...)):
     price = safe_float(quote.get("regularMarketPrice")) or closes[-1]
     day_change_abs = safe_float(quote.get("regularMarketChange"))
     day_change_pct = safe_float(quote.get("regularMarketChangePercent"))
+    # Yahoo v8 chart meta lacks regularMarketChangePercent — compute from prev close
+    if day_change_pct is None and price:
+        prev = safe_float(quote.get("chartPreviousClose")) or safe_float(quote.get("previousClose"))
+        if prev and prev != 0:
+            day_change_pct = round((price - prev) / prev * 100, 2)
+            if day_change_abs is None:
+                day_change_abs = round(price - prev, 2)
     vol_raw = safe_float(quote.get("regularMarketVolume"))
     bid = safe_float(quote.get("bid"))
     ask = safe_float(quote.get("ask"))
@@ -319,7 +338,7 @@ async def get_dashboard(symbol: str = Path(...)):
 
     return {
         "symbol": sym,
-        "name": quote.get("shortName") or quote.get("longName") or sym,
+        "name": _universe_name(sym) or quote.get("shortName") or quote.get("longName") or sym,
         "price": price,
         "dayChangePct": day_change_pct,
         "dayChangeAbs": day_change_abs,

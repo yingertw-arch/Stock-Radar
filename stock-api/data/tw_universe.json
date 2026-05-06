@@ -1,227 +1,252 @@
 [
   {
     "symbol": "2330.TW",
-    "name": "¥x¿n¹q",
-    "sector": "¥b¾ÉÅé"
+    "name": "å°ç©é›»",
+    "sector": "åŠå°é«”"
   },
   {
     "symbol": "2317.TW",
-    "name": "ÂE®ü",
-    "sector": "¹q¤l¥N¤u"
+    "name": "é´»æµ·",
+    "sector": "é›»å­ä»£å·¥"
   },
   {
     "symbol": "2454.TW",
-    "name": "Ápµo¬ì",
-    "sector": "IC³]­p"
+    "name": "è¯ç™¼ç§‘",
+    "sector": "ICè¨­è¨ˆ"
   },
   {
     "symbol": "2308.TW",
-    "name": "¥x¹F¹q",
-    "sector": "¹q·½»P¦Û°Ê¤Æ"
+    "name": "å°é”é›»",
+    "sector": "é›»æºèˆ‡è‡ªå‹•åŒ–"
   },
   {
     "symbol": "2382.TW",
-    "name": "¼s¹F",
-    "sector": "¦øªA¾¹¥N¤u"
+    "name": "å»£é”",
+    "sector": "ä¼ºæœå™¨ä»£å·¥"
   },
   {
     "symbol": "2412.TW",
-    "name": "¤¤µØ¹q",
-    "sector": "¹q«H"
+    "name": "ä¸­è¯é›»",
+    "sector": "é›»ä¿¡"
   },
   {
     "symbol": "2881.TW",
-    "name": "´I¨¹ª÷",
-    "sector": "ª÷¿Ä"
+    "name": "å¯Œé‚¦é‡‘",
+    "sector": "é‡‘è"
   },
   {
     "symbol": "2882.TW",
-    "name": "°ê®õª÷",
-    "sector": "ª÷¿Ä"
+    "name": "åœ‹æ³°é‡‘",
+    "sector": "é‡‘è"
   },
   {
     "symbol": "2891.TW",
-    "name": "¤¤«Hª÷",
-    "sector": "ª÷¿Ä"
+    "name": "ä¸­ä¿¡é‡‘",
+    "sector": "é‡‘è"
   },
   {
     "symbol": "2886.TW",
-    "name": "¥üÂ×ª÷",
-    "sector": "ª÷¿Ä"
+    "name": "å…†è±é‡‘",
+    "sector": "é‡‘è"
   },
   {
     "symbol": "3711.TW",
-    "name": "¤é¤ë¥ú§ë±±",
-    "sector": "¥b¾ÉÅé«Ê´ú"
+    "name": "æ—¥æœˆå…‰æŠ•æ§",
+    "sector": "åŠå°é«”å°æ¸¬"
   },
   {
     "symbol": "2357.TW",
-    "name": "µØºÓ",
-    "sector": "¹q¸£«~µP"
+    "name": "è¯ç¢©",
+    "sector": "é›»è…¦å“ç‰Œ"
   },
   {
     "symbol": "2303.TW",
-    "name": "Áp¹q",
-    "sector": "¥b¾ÉÅé"
+    "name": "è¯é›»",
+    "sector": "åŠå°é«”"
   },
   {
     "symbol": "2327.TW",
-    "name": "°ê¥¨",
-    "sector": "³Q°Ê¤¸¥ó"
+    "name": "åœ‹å·¨",
+    "sector": "è¢«å‹•å…ƒä»¶"
   },
   {
     "symbol": "2379.TW",
-    "name": "·ç¬R",
-    "sector": "IC³]­p"
+    "name": "ç‘æ˜±",
+    "sector": "ICè¨­è¨ˆ"
   },
   {
     "symbol": "3034.TW",
-    "name": "Ápµú",
-    "sector": "IC³]­p"
+    "name": "è¯è© ",
+    "sector": "ICè¨­è¨ˆ"
   },
   {
     "symbol": "3231.TW",
-    "name": "½n³Ğ",
-    "sector": "¦øªA¾¹¥N¤u"
+    "name": "ç·¯å‰µ",
+    "sector": "ä¼ºæœå™¨ä»£å·¥"
   },
   {
     "symbol": "3017.TW",
-    "name": "©_èb",
-    "sector": "´²¼ö"
+    "name": "å¥‡é‹",
+    "sector": "æ•£ç†±"
   },
   {
     "symbol": "3661.TW",
-    "name": "¥@ªä-KY",
+    "name": "ä¸–èŠ¯-KY",
     "sector": "ASIC"
   },
   {
     "symbol": "6669.TW",
-    "name": "½n¿o",
-    "sector": "¦øªA¾¹"
+    "name": "ç·¯ç©",
+    "sector": "ä¼ºæœå™¨"
   },
   {
     "symbol": "2207.TW",
-    "name": "©M®õ¨®",
-    "sector": "¨T¨®"
+    "name": "å’Œæ³°è»Š",
+    "sector": "æ±½è»Š"
   },
   {
     "symbol": "1303.TW",
-    "name": "«n¨È",
-    "sector": "¶ì¤Æ"
+    "name": "å—äº",
+    "sector": "å¡‘åŒ–"
   },
   {
     "symbol": "1301.TW",
-    "name": "¥x¶ì",
-    "sector": "¶ì¤Æ"
+    "name": "å°å¡‘",
+    "sector": "å¡‘åŒ–"
   },
   {
     "symbol": "1216.TW",
-    "name": "²Î¤@",
-    "sector": "­¹«~"
+    "name": "çµ±ä¸€",
+    "sector": "é£Ÿå“"
   },
   {
     "symbol": "5871.TW",
-    "name": "¤¤¯²-KY",
-    "sector": "ª÷¿ÄªA°È"
+    "name": "ä¸­ç§Ÿ-KY",
+    "sector": "é‡‘èæœå‹™"
   },
   {
     "symbol": "2383.TW",
-    "name": "¥x¥ú¹q",
+    "name": "å°å…‰é›»",
     "sector": "CCL"
   },
   {
     "symbol": "6213.TW",
-    "name": "Áp­Z",
+    "name": "è¯èŒ‚",
     "sector": "CCL"
   },
   {
     "symbol": "6274.TWO",
-    "name": "¥xïú",
+    "name": "å°ç‡¿",
     "sector": "CCL"
   },
   {
     "symbol": "1815.TWO",
-    "name": "´I³ì",
-    "sector": "¬ÁÅÖ¥¬"
+    "name": "å¯Œå–¬",
+    "sector": "ç»çº–å¸ƒ"
   },
   {
     "symbol": "8358.TWO",
-    "name": "ª÷©~",
-    "sector": "»Éºä"
+    "name": "é‡‘å±…",
+    "sector": "éŠ…ç®”"
   },
   {
     "symbol": "2368.TW",
-    "name": "ª÷¹³¹q",
+    "name": "é‡‘åƒé›»",
     "sector": "PCB"
   },
   {
     "symbol": "3037.TW",
-    "name": "ªY¿³",
+    "name": "æ¬£èˆˆ",
     "sector": "PCB / ABF"
   },
   {
     "symbol": "3044.TW",
-    "name": "°·¹©",
+    "name": "å¥é¼",
     "sector": "PCB"
   },
   {
     "symbol": "8046.TW",
-    "name": "«n¹q",
-    "sector": "ABF¸üªO"
+    "name": "å—é›»",
+    "sector": "ABFè¼‰æ¿"
   },
   {
     "symbol": "3189.TW",
-    "name": "´ººÓ",
-    "sector": "IC¸üªO"
+    "name": "æ™¯ç¢©",
+    "sector": "ICè¼‰æ¿"
   },
   {
     "symbol": "3324.TW",
-    "name": "ÂùÂE",
-    "sector": "´²¼ö"
+    "name": "é›™é´»",
+    "sector": "æ•£ç†±"
   },
   {
     "symbol": "3532.TW",
-    "name": "¥x³Ó¬ì",
-    "sector": "ª¿´¹¶ê"
+    "name": "å°å‹ç§‘",
+    "sector": "çŸ½æ™¶åœ“"
   },
   {
     "symbol": "6488.TWO",
-    "name": "Àô²y´¹",
-    "sector": "ª¿´¹¶ê"
+    "name": "ç’°çƒæ™¶",
+    "sector": "çŸ½æ™¶åœ“"
   },
   {
     "symbol": "1560.TW",
-    "name": "¤¤¬â",
-    "sector": "¥b¾ÉÅé¯Ó§÷"
+    "name": "ä¸­ç ‚",
+    "sector": "åŠå°é«”è€—æ"
   },
   {
     "symbol": "3680.TW",
-    "name": "®aµn",
-    "sector": "¥b¾ÉÅé¯Ó§÷"
+    "name": "å®¶ç™»",
+    "sector": "åŠå°é«”è€—æ"
   },
   {
     "symbol": "6698.TWO",
-    "name": "¤O´¼¹q¤l",
-    "sector": "IC³]­p"
+    "name": "åŠ›æ™ºé›»å­",
+    "sector": "ICè¨­è¨ˆ"
   },
   {
     "symbol": "2337.TW",
-    "name": "©ô§»",
-    "sector": "°O¾ĞÅé"
+    "name": "æ—ºå®",
+    "sector": "è¨˜æ†¶é«”"
   },
   {
     "symbol": "6415.TW",
-    "name": "ª¿¤O-KY",
-    "sector": "IC³]­p"
+    "name": "çŸ½åŠ›-KY",
+    "sector": "ICè¨­è¨ˆ"
   },
   {
     "symbol": "3008.TW",
-    "name": "¤j¥ß¥ú",
-    "sector": "¥ú¾ÇÃèÀY"
+    "name": "å¤§ç«‹å…‰",
+    "sector": "å…‰å­¸é¡é ­"
   },
   {
     "symbol": "4966.TWO",
-    "name": "ÃĞ·ç-KY",
-    "sector": "IC³]­p"
+    "name": "è­œç‘-KY",
+    "sector": "ICè¨­è¨ˆ"
+  },
+  {
+    "symbol": "6719.TW",
+    "name": "å˜‰æ¾¤",
+    "sector": "é›»å­é›¶çµ„ä»¶"
+  },
+  {
+    "symbol": "2633.TW",
+    "name": "å°ç£é«˜éµ",
+    "sector": "é‹è¼¸"
+  },
+  {
+    "symbol": "2610.TW",
+    "name": "è¯èˆª",
+    "sector": "é‹è¼¸"
+  },
+  {
+    "symbol": "0050.TW",
+    "name": "å…ƒå¤§å°ç£50",
+    "sector": "ETF"
+  },
+  {
+    "symbol": "00878.TW",
+    "name": "åœ‹æ³°æ°¸çºŒé«˜è‚¡æ¯",
+    "sector": "ETF"
   }
 ]

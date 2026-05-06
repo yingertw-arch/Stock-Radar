@@ -187,6 +187,10 @@ function WatchCard({ item, quote, onSelect, onRemove }) {
   const pct = quote?.dayChangePct
   const rsi  = quote?.rsi14
   const winRate = quote?.aiWinRate?.up
+  // If stored name is a raw ticker (e.g. "1216.TW"), prefer API name
+  const displayName = /^\d+\.(TW|TWO)$/i.test(item.name)
+    ? (quote?.name || item.name)
+    : item.name
 
   return (
     <div className="card" style={{ cursor: 'pointer', position: 'relative', transition: 'border-color .15s' }}
@@ -202,7 +206,7 @@ function WatchCard({ item, quote, onSelect, onRemove }) {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <div style={{ fontWeight: 700, fontSize: 15, paddingRight: 24 }}>{item.name}</div>
+          <div style={{ fontWeight: 700, fontSize: 15, paddingRight: 24 }}>{displayName}</div>
           <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 1 }}>
             {item.symbol}{item.sector ? ' · ' + item.sector : ''}
           </div>
