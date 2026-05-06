@@ -348,6 +348,7 @@ async def get_dashboard(symbol: str = Path(...)):
         "keyPriceLevels": key_levels,
         "technicalSignals": signals,
         "mainForceSignal": mf_signal,
+        "rsi14": tech.get("rsi14"),
         "aiWinRate": win_rate,
         "patternAnalysis": patterns,
         "technicalSummary": tech_table,
