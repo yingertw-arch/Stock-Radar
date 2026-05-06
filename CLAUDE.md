@@ -169,8 +169,7 @@ stock-api/
 
 ```env
 VITE_API_BASE=https://stock-radar-api.vercel.app/api
-
-VITE_FIREBASE_API_KEY=AIzaSyBDSEjmA0-Ni3IEd6cXM9AzaBXETRXAumY
+VITE_FIREBASE_API_KEY=（存放於 GitHub Secrets，請勿在此填寫）
 VITE_FIREBASE_AUTH_DOMAIN=stock-radar-8b1b5.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=stock-radar-8b1b5
 VITE_FIREBASE_STORAGE_BUCKET=stock-radar-8b1b5.firebasestorage.app
