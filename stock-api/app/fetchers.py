@@ -95,6 +95,7 @@ async def fetch_chart(
         closes.append(cv)
         volumes.append(vv)
 
+    meta = result.get("meta", {})
     result_data = {
         "dates": dates,
         "opens": opens,
@@ -102,6 +103,7 @@ async def fetch_chart(
         "lows": lows,
         "closes": closes,
         "volumes": volumes,
+        "meta": meta,
     }
     return cache_set(cache_key, result_data)
 

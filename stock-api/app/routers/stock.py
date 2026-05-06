@@ -211,7 +211,9 @@ async def get_dashboard(symbol: str = Path(...)):
     main_force = _safe(main_force, [])
 
     quotes_map = _safe(quotes_result, {})
-    quote = quotes_map.get(sym, {})
+    # Use chart meta as fallback when quote API fails (Yahoo Finance v7 rate-limits)
+    chart_meta = chart.get("meta", {})
+    quote = {**chart_meta, **quotes_map.get(sym, {})}
 
     closes = chart["closes"]
     volumes = chart["volumes"]
@@ -248,7 +250,8 @@ async def get_dashboard(symbol: str = Path(...)):
         institutional = _safe(institutional, [])
         main_force = _safe(main_force, [])
         quotes_map = _safe(quotes_result, {})
-        quote = quotes_map.get(sym, {})
+        chart_meta = chart.get("meta", {})
+        quote = {**chart_meta, **quotes_map.get(sym, {})}
         closes = chart["closes"]
         volumes = chart["volumes"]
         highs = chart["highs"]

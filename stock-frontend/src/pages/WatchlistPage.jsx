@@ -4,15 +4,16 @@ import { api } from '../api'
 import { fmt, pctColor, pctSign } from '../utils'
 
 export default function WatchlistPage({ onSelectStock }) {
-  const [list,        setList]        = useState([])
-  const [quotes,      setQuotes]      = useState({})
-  const [input,       setInput]       = useState('')
-  const [adding,      setAdding]      = useState(false)
-  const [errMsg,      setErrMsg]      = useState('')
-  const [fbErr,       setFbErr]       = useState(false)
-  const [suggestions, setSuggestions] = useState([])
-  const [showDrop,    setShowDrop]    = useState(false)
-  const [noResults,   setNoResults]   = useState(false)
+  const [list,         setList]         = useState([])
+  const [quotes,       setQuotes]       = useState({})
+  const [input,        setInput]        = useState('')
+  const [adding,       setAdding]       = useState(false)
+  const [errMsg,       setErrMsg]       = useState('')
+  const [fbErr,        setFbErr]        = useState(false)
+  const [suggestions,  setSuggestions]  = useState([])
+  const [showDrop,     setShowDrop]     = useState(false)
+  const [noResults,    setNoResults]    = useState(false)
+  const [selectedInfo, setSelectedInfo] = useState(null)  // { name, sector } from autocomplete
   const debounceRef   = useRef(null)
   const wrapperRef    = useRef(null)
 
@@ -56,21 +57,29 @@ export default function WatchlistPage({ onSelectStock }) {
   }, [])
 
   function selectSuggestion(s) {
-    setInput(s.symbol); setSuggestions([]); setShowDrop(false); setNoResults(false)
+    setInput(s.symbol)
+    setSelectedInfo({ name: s.name, sector: s.sector || '' })
+    setSuggestions([]); setShowDrop(false); setNoResults(false)
   }
 
   async function handleAdd() {
     const sym = input.trim().replace(/\s/g, '')
     if (!sym) return
-    if (noResults && /[\u4e00-\u9fff]/.test(sym)) {
-      setErrMsg('找不到「' + sym + '」，請輸入股票代號（如：6698）')
+
+    // Block pure Chinese input immediately (no timing dependency on debounce)
+    if (/^[\u4e00-\u9fff\uff00-\uffef\s]+$/.test(sym)) {
+      setErrMsg('「' + sym + '」不是有效代號，請輸入股票代號（如：6698）')
       return
     }
+
     setAdding(true); setErrMsg('')
     try {
       const data = await api.dashboard(sym)
-      await addToWatchlist({ symbol: data.symbol || sym, name: data.name || sym, sector: data.sector || '' })
-      setInput(''); setSuggestions([]); setNoResults(false)
+      // Prefer Chinese name from autocomplete selection over yfinance English name
+      const name = selectedInfo?.name || data.name || sym
+      const sector = selectedInfo?.sector || ''
+      await addToWatchlist({ symbol: data.symbol || sym, name, sector })
+      setInput(''); setSuggestions([]); setNoResults(false); setSelectedInfo(null)
     } catch (e) {
       setErrMsg(e.message || '找不到此股票')
     } finally {
@@ -84,7 +93,7 @@ export default function WatchlistPage({ onSelectStock }) {
         <div style={{ flex: 1, position: 'relative' }}>
           <input
             value={input}
-            onChange={e => { setInput(e.target.value); setErrMsg('') }}
+            onChange={e => { setInput(e.target.value); setErrMsg(''); setSelectedInfo(null) }}
             onKeyDown={e => {
               if (e.key === 'Enter') { setShowDrop(false); handleAdd() }
               if (e.key === 'Escape') setShowDrop(false)
@@ -176,7 +185,7 @@ export default function WatchlistPage({ onSelectStock }) {
 
 function WatchCard({ item, quote, onSelect, onRemove }) {
   const pct = quote?.dayChangePct
-  const rsi = quote?.rsi14
+  const rsi  = quote?.rsi14
   const winRate = quote?.aiWinRate?.up
 
   return (
@@ -186,7 +195,8 @@ function WatchCard({ item, quote, onSelect, onRemove }) {
          onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}>
 
       <button onClick={e => { e.stopPropagation(); onRemove() }} title="移除自選股"
-        style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 'none', color: 'var(--muted)', fontSize: 16, lineHeight: 1, padding: 4, cursor: 'pointer', zIndex: 1 }}>
+        style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 'none',
+                 color: 'var(--muted)', fontSize: 16, lineHeight: 1, padding: 4, cursor: 'pointer', zIndex: 1 }}>
         ✕
       </button>
 
