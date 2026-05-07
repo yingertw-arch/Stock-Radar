@@ -363,6 +363,62 @@ npm run dev
 
 ---
 
+## 2026-05-07 Codex 升級：完整台股 Universe
+
+### 使用者需求
+
+- 將中文搜尋從「小型觀察池」升級為「完整台股 universe」，避免建榮、增你強這類股票需要逐檔手補。
+
+### 官方資料來源
+
+- 上市公司基本資料：
+  - `https://mopsfin.twse.com.tw/opendata/t187ap03_L.csv`
+  - 政府開放資料集：上市公司基本資料，資料集識別碼 18419。
+- 上櫃公司基本資料：
+  - `https://mopsfin.twse.com.tw/opendata/t187ap03_O.csv`
+  - 政府開放資料集：上櫃公司基本資料，資料集識別碼 25036。
+
+### 已修改
+
+- `stock-api/app/universe.py`
+  - `load_universe(MARKETS["tw"])` 改為載入完整上市/上櫃 universe。
+  - 先抓官方 CSV：
+    - 上市股票轉成 `.TW`
+    - 上櫃股票轉成 `.TWO`
+  - 合併本地 `tw_universe.json`，保留 ETF 與人工覆蓋項目。
+  - 成功抓到官方資料後快取 24 小時。
+  - 官方資料抓取失敗時使用本地 `tw_universe.json` fallback，fallback 只短暫快取 5 分鐘，避免小清單被鎖 24 小時。
+  - 官方 HTTP 入口會回 JS redirect，因此 downloader 會檢查內容必須包含 CSV 欄位；HTTPS 若遇到本機 Python 憑證驗證錯誤，會針對公開資料重試 unverified context。
+  - 新增產業代碼轉中文名稱，例如 `01` → `水泥工業`、`29` → `電子通路業`。
+
+- `stock-api/data/tw_universe.json`
+  - 從 52 筆小型觀察池更新為 1974 筆完整快照。
+  - 這是 runtime 官方同步失敗時的完整 fallback。
+
+- `stock-api/scripts/update_tw_universe.py`
+  - 新增手動更新本地快照腳本。
+  - 執行方式：
+    - `cd stock-api`
+    - `python scripts/update_tw_universe.py`
+
+### 驗證結果
+
+- 完整 universe 合併後為 1974 筆。
+- 已驗證：
+  - `1101` → `台泥` / `水泥工業`
+  - `3028` → `增你強` / `電子通路`
+  - `5340` → `建榮` / `電子材料`
+  - `8069` → `元太` / `光電業`
+  - `9958` → `世紀鋼` / `鋼鐵工業`
+
+### 後續注意
+
+- 搜尋完整度已大幅提升，但仍限上市/上櫃公司基本資料與本地 ETF 補充。
+- 若未來要支援興櫃，需再加入 `t187ap03_R.csv` 或其他興櫃資料源。
+- Vercel 後端需要部署到最新 commit，否則正式站仍會呼叫舊版搜尋邏輯。
+
+---
+
 ## 歷史紀錄
 
 | 日期 | 事件 |
@@ -381,3 +437,4 @@ npm run dev
 | 2026-05-07 | Codex 追加修正建榮 5340：補進 tw_universe、支援中文加入前即時 search、舊英文卡片刷新成中文 |
 | 2026-05-07 | Codex 追加修正重新整理自選股會跳回大盤：App.jsx 以 hash/localStorage 保存目前分頁 |
 | 2026-05-07 | Codex 追加修正增你強 3028：補進 tw_universe，讓中文搜尋與自選股顯示中文名稱 |
+| 2026-05-07 | Codex 將台股 universe 升級為完整上市/上櫃清單：官方 CSV runtime 同步、本地 1974 筆 fallback、產業代碼中文化 |
