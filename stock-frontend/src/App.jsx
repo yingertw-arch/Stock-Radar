@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './index.css'
 import './App.css'
 import MarketPage     from './pages/MarketPage'
@@ -12,12 +12,49 @@ const TABS = [
   { id: 'watchlist', label: '⭐ 自選股' },
 ]
 
+const TAB_IDS = new Set(TABS.map(t => t.id))
+const TAB_STORAGE_KEY = 'stock-radar-active-tab'
+
+function readInitialTab() {
+  if (typeof window === 'undefined') return 'market'
+  const hashTab = window.location.hash.replace('#', '')
+  if (TAB_IDS.has(hashTab)) return hashTab
+  const savedTab = window.localStorage.getItem(TAB_STORAGE_KEY)
+  return TAB_IDS.has(savedTab) ? savedTab : 'market'
+}
+
 export default function App() {
-  const [tab, setTab]           = useState('market')
+  const [tab, setTab]           = useState(readInitialTab)
   const [selected, setSelected] = useState(null)   // { symbol, name, sector }
 
   function openStock(stock) { setSelected(stock) }
   function closeStock()     { setSelected(null)  }
+  function switchTab(nextTab) {
+    setTab(nextTab)
+    closeStock()
+    window.localStorage.setItem(TAB_STORAGE_KEY, nextTab)
+    if (window.location.hash !== `#${nextTab}`) {
+      window.history.replaceState(null, '', `#${nextTab}`)
+    }
+  }
+
+  useEffect(() => {
+    if (window.location.hash !== `#${tab}`) {
+      window.history.replaceState(null, '', `#${tab}`)
+    }
+
+    function handleHashChange() {
+      const nextTab = window.location.hash.replace('#', '')
+      if (TAB_IDS.has(nextTab)) {
+        setTab(nextTab)
+        setSelected(null)
+        window.localStorage.setItem(TAB_STORAGE_KEY, nextTab)
+      }
+    }
+
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [tab])
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -41,7 +78,7 @@ export default function App() {
           {TABS.map(t => (
             <button
               key={t.id}
-              onClick={() => { setTab(t.id); closeStock() }}
+              onClick={() => switchTab(t.id)}
               style={{
                 padding: '6px 14px',
                 borderRadius: 6,

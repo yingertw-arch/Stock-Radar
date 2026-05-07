@@ -300,6 +300,39 @@ npm run dev
 
 ---
 
+## 2026-05-07 Codex 追加修正：重新整理保留目前分頁
+
+### 使用者回報
+
+- 在「自選股」分頁重新整理頁面時，畫面會跳回「大盤」。
+
+### 根因
+
+- `stock-frontend/src/App.jsx` 原本用 `useState("market")` 作為固定初始 tab。
+- 瀏覽器 reload 後 React state 會重建，因此永遠回到大盤。
+
+### 已修改
+
+- `stock-frontend/src/App.jsx`
+  - 新增 `readInitialTab()`：
+    - 優先讀網址 hash，例如 `#watchlist`。
+    - 若 hash 不合法，讀 `localStorage` 的 `stock-radar-active-tab`。
+    - 都沒有時才回到 `market`。
+  - 點擊 tab 時改用 `switchTab(nextTab)`：
+    - 更新 React state。
+    - 關閉個股 dashboard overlay。
+    - 寫入 localStorage。
+    - 用 `history.replaceState` 同步網址 hash。
+  - 新增 `hashchange` listener，支援瀏覽器 hash 切換時同步分頁。
+
+### 驗證重點
+
+- 進入 `https://yingertw-arch.github.io/Stock-Radar/#watchlist` 應直接顯示自選股。
+- 在自選股分頁按重新整理，仍應留在自選股。
+- 點選大盤/推薦股/自選股時，網址 hash 應分別更新為 `#market`、`#recommend`、`#watchlist`。
+
+---
+
 ## 歷史紀錄
 
 | 日期 | 事件 |
@@ -316,3 +349,4 @@ npm run dev
 | 2026-05-06 | 後端 dashboard 加入 .TWO 上櫃股自動 fallback |
 | 2026-05-07 | Codex 修正自選股中文名稱來源與報價刷新狀態（尚未 build/deploy，需處理前端 node_modules 不完整問題） |
 | 2026-05-07 | Codex 追加修正建榮 5340：補進 tw_universe、支援中文加入前即時 search、舊英文卡片刷新成中文 |
+| 2026-05-07 | Codex 追加修正重新整理自選股會跳回大盤：App.jsx 以 hash/localStorage 保存目前分頁 |
