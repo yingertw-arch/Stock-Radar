@@ -269,6 +269,37 @@ npm run dev
 
 ---
 
+## 2026-05-07 Codex 追加修正：建榮 5340 中文搜尋
+
+### 使用者回報
+
+- 自選股搜尋「建榮」無法以中文搜尋到股票。
+- 直接輸入 `5340` 加入自選後，卡片顯示 Yahoo 英文名 `BAOTEK INDUSTRIAL MATERIALS LTD`，不是中文「建榮」。
+
+### 根因
+
+- `stock-api/data/tw_universe.json` 股票池沒有 `5340.TWO`，所以：
+  - `/api/search?q=建榮` 找不到結果。
+  - `/dashboard` 的 `find_universe_stock("5340")` 找不到中文 profile，只能退回 Yahoo 名稱。
+- 前端既有自選股如果 Firebase 已存成英文名，原本不會用 quote 回來的新中文名稱覆蓋顯示。
+
+### 已修改
+
+- `stock-api/data/tw_universe.json`
+  - 新增：
+    - `5340.TWO` / `建榮` / `電子材料`
+- `stock-frontend/src/pages/WatchlistPage.jsx`
+  - `handleAdd()` 若偵測到中文輸入，且目前 suggestions 尚未有結果，會立即呼叫 `api.search(raw)` 解析中文名稱。
+  - 自選股卡片顯示名稱時，若 quote 回來有 `q.name`，優先使用 quote 名稱，讓已存成英文名的舊卡片也能刷新成中文。
+
+### 驗證重點
+
+- `/api/search?q=建榮` 應回傳 `5340.TWO 建榮`。
+- `/api/stock/5340/dashboard` 應回傳 `name: 建榮`、`sector: 電子材料`。
+- 既有自選股卡片 `BAOTEK INDUSTRIAL MATERIALS LTD` 在重新抓 quote 後應改顯示「建榮」。
+
+---
+
 ## 歷史紀錄
 
 | 日期 | 事件 |
@@ -284,3 +315,4 @@ npm run dev
 | 2026-05-06 | 自選股輸入框加入 autocomplete 下拉補全 |
 | 2026-05-06 | 後端 dashboard 加入 .TWO 上櫃股自動 fallback |
 | 2026-05-07 | Codex 修正自選股中文名稱來源與報價刷新狀態（尚未 build/deploy，需處理前端 node_modules 不完整問題） |
+| 2026-05-07 | Codex 追加修正建榮 5340：補進 tw_universe、支援中文加入前即時 search、舊英文卡片刷新成中文 |

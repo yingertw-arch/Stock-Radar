@@ -81,10 +81,20 @@ export default function WatchlistPage({ onSelectStock }) {
   async function handleAdd() {
     const raw = input.trim()
     const normalized = raw.replace(/\s/g, '')
-    const picked = selectedSuggestion || suggestions.find(s => {
+    let picked = selectedSuggestion || suggestions.find(s => {
       const base = s.symbol.split('.')[0]
       return s.symbol === normalized || base === normalized || s.name === raw
     })
+
+    if (!picked && /[\u4e00-\u9fff]/.test(raw)) {
+      try {
+        const res = await api.search(raw)
+        picked = (res || []).find(s => s.name === raw) || (res || [])[0]
+      } catch {
+        picked = null
+      }
+    }
+
     const sym = picked?.symbol || normalized
     if (!sym) return
 
@@ -206,7 +216,7 @@ export default function WatchlistPage({ onSelectStock }) {
             const q = quotes[item.symbol]
             const displayItem = {
               ...item,
-              name: item.name && item.name !== item.symbol ? item.name : q?.name || item.name,
+              name: q?.name && q.name !== item.symbol ? q.name : item.name,
               sector: item.sector || q?.sector || '',
             }
             return (
