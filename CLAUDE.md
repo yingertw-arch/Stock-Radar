@@ -207,11 +207,65 @@ npm run dev
 
 ## 待辦事項（優先順序）
 
+- [ ] 高優先：部署並實測 2026-05-07 的自選股修正（中文名稱、30 秒報價刷新、更新時間顯示）
 - [ ] 中優先：測試自選股完整流程（加入、顯示報價、移除、跨裝置同步）
 - [ ] 中優先：測試個股儀表板（點擊推薦股/自選股 → K線/KD/MACD 是否正常渲染）
 - [ ] 低優先：美股個股儀表板支援（目前只支援台股 symbol）
 - [ ] 低優先：自選股支援美股代號（AAPL、NVDA 等，需確認 dashboard 是否正常）
 - [ ] 低優先：tw_universe.json 擴充更多台股（目前 40 支，autocomplete 範圍有限）
+
+---
+
+## 2026-05-07 Codex 修正紀錄（尚未部署）
+
+### 使用者回報
+
+- 自選股仍無法穩定顯示中文名稱。
+- 自選股報價/連線更新訊息不夠即時，使用者不知道資料是否正在刷新。
+
+### 已修改檔案
+
+- `stock-api/app/universe.py`
+  - 新增 `find_universe_stock(symbol, preferred_market_id="tw")`
+  - 用股票池 `tw_universe.json` / `us_universe.json` 查詢股票中文名稱與產業。
+  - 支援純代號、`.TW`、`.TWO` alias，例如 `6274` 可對到 `6274.TWO` 的「台燿」。
+
+- `stock-api/app/routers/stock.py`
+  - `/api/stock/{symbol}/dashboard` 現在優先使用股票池名稱：
+    - `name`: 股票池中文名 → Yahoo `shortName` → Yahoo `longName` → symbol
+    - `sector`: 股票池產業，找不到則空字串
+  - `.TWO` fallback 後會重新查一次股票池 profile，避免上櫃股仍顯示代號或英文名。
+
+- `stock-frontend/src/pages/WatchlistPage.jsx`
+  - 自選股加入流程會保留 autocomplete 選到的 `name` / `sector`。
+  - 若使用者直接輸入中文名稱後按 Enter，會從目前 suggestions 中找完全匹配名稱或代號的項目再加入。
+  - 既有 Firebase watchlist 若已存成代號，前端顯示時會用 `dashboard` quote 回來的 `q.name` 補上中文名。
+  - 自選股報價會立即抓一次，之後每 30 秒自動刷新。
+  - 新增狀態文字：
+    - `更新報價中…`
+    - `報價更新於 HH:mm:ss`
+    - `等待報價更新…`
+
+### 已驗證
+
+- 後端語法檢查通過：
+  - `python -m compileall app`
+- 股票池查名測試通過：
+  - `find_universe_stock("2330")` → `台積電`
+  - `find_universe_stock("6274")` → `台燿`
+  - `find_universe_stock("6274.TWO")` → `台燿`
+- `git diff --check` 無錯誤，只有 Windows LF/CRLF warning。
+
+### 尚未完成 / 阻塞
+
+- 前端尚未 build / deploy。
+- 原因：`stock-frontend/node_modules` 在 Google Drive 同步目錄中不完整，`vite` 執行檔缺失。
+  - `npm.cmd run build` 失敗：`vite is not recognized`
+  - 檢查發現 `node_modules/vite` 只有部分檔案，`.bin` 不存在。
+  - 嘗試 `npm.cmd install` 兩次皆在雲端同步目錄中超時。
+- 下一步建議：
+  - 在本機非雲端同步目錄或乾淨 clone 中執行 `npm install && npm run build`。
+  - build 成功後再 commit / push / deploy。
 
 ---
 
@@ -229,3 +283,4 @@ npm run dev
 | 2026-05-06 | 新增 /api/search 端點：中文名稱/代號模糊搜尋 |
 | 2026-05-06 | 自選股輸入框加入 autocomplete 下拉補全 |
 | 2026-05-06 | 後端 dashboard 加入 .TWO 上櫃股自動 fallback |
+| 2026-05-07 | Codex 修正自選股中文名稱來源與報價刷新狀態（尚未 build/deploy，需處理前端 node_modules 不完整問題） |

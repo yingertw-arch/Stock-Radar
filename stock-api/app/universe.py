@@ -27,6 +27,25 @@ def load_universe(market: Market) -> list[dict[str, str]]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def find_universe_stock(symbol: str, preferred_market_id: str = "tw") -> dict[str, str] | None:
+    target = normalize_symbol(symbol, preferred_market_id)
+    aliases = {target, target.split(".")[0]}
+    if target.endswith(".TW"):
+        aliases.add(target.replace(".TW", ".TWO"))
+    if target.endswith(".TWO"):
+        aliases.add(target.replace(".TWO", ".TW"))
+
+    markets = [market_for_symbol(target, preferred_market_id)]
+    markets.extend(m for m in MARKETS.values() if m not in markets)
+
+    for market in markets:
+        for row in load_universe(market):
+            row_symbol = row["symbol"].upper()
+            if row_symbol in aliases or row_symbol.split(".")[0] in aliases:
+                return row
+    return None
+
+
 def normalize_symbol(raw_symbol: str, market_id: str = "tw") -> str:
     symbol = raw_symbol.strip().upper().replace(" ", "")
     if not symbol:

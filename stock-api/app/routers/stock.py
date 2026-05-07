@@ -23,7 +23,7 @@ from app.indicators import (
     volume_ratio,
 )
 from app.scoring import analyze_one_stock, overheat_score, score_stock
-from app.universe import MARKETS, load_universe, market_for_symbol, normalize_symbol
+from app.universe import MARKETS, find_universe_stock, load_universe, market_for_symbol, normalize_symbol
 
 router = APIRouter()
 
@@ -186,6 +186,7 @@ async def get_dashboard(symbol: str = Path(...)):
     stock dashboard screen (K線, KD, MACD, 布林通道, 三大法人, 技術燈號, etc.)
     """
     sym = normalize_symbol(symbol)
+    profile = find_universe_stock(sym)
     # For pure-digit Taiwan codes, also prepare the .TWO variant as fallback
     raw_digits = symbol.strip().upper().replace(" ", "")
     sym_two = f"{raw_digits}.TWO" if raw_digits.isdigit() else None
@@ -236,6 +237,7 @@ async def get_dashboard(symbol: str = Path(...)):
     if len(closes) < 20 and sym_two and sym_two != sym:
         sym = sym_two
         market = market_for_symbol(sym)
+        profile = find_universe_stock(sym)
         try:
             (
                 chart_daily,
@@ -338,7 +340,8 @@ async def get_dashboard(symbol: str = Path(...)):
 
     return {
         "symbol": sym,
-        "name": _universe_name(sym) or quote.get("shortName") or quote.get("longName") or sym,
+        "name": (profile or {}).get("name") or quote.get("shortName") or quote.get("longName") or sym,
+        "sector": (profile or {}).get("sector") or "",
         "price": price,
         "dayChangePct": day_change_pct,
         "dayChangeAbs": day_change_abs,

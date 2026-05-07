@@ -13,7 +13,9 @@ export default function WatchlistPage({ onSelectStock }) {
   const [suggestions,  setSuggestions]  = useState([])
   const [showDrop,     setShowDrop]     = useState(false)
   const [noResults,    setNoResults]    = useState(false)
-  const [selectedInfo, setSelectedInfo] = useState(null)  // { name, sector } from autocomplete
+  const [selectedSuggestion, setSelectedSuggestion] = useState(null)
+  const [refreshing,  setRefreshing]  = useState(false)
+  const [lastUpdated, setLastUpdated] = useState(null)
   const debounceRef   = useRef(null)
   const wrapperRef    = useRef(null)
 
@@ -24,13 +26,27 @@ export default function WatchlistPage({ onSelectStock }) {
   }, [])
 
   useEffect(() => {
-    if (!list.length) { setQuotes({}); return }
+    if (!list.length) { setQuotes({}); setLastUpdated(null); return }
+    let cancelled = false
     const symbols = list.map(s => s.symbol)
-    Promise.allSettled(symbols.map(sym => api.dashboard(sym))).then(results => {
+    async function refreshQuotes() {
+      setRefreshing(true)
+      const results = await Promise.allSettled(symbols.map(sym => api.dashboard(sym)))
+      if (cancelled) return
       const map = {}
       results.forEach((r, i) => { if (r.status === 'fulfilled') map[symbols[i]] = r.value })
       setQuotes(map)
+      setLastUpdated(new Date())
+      setRefreshing(false)
+    }
+    refreshQuotes().catch(() => {
+      if (!cancelled) setRefreshing(false)
     })
+    const timer = setInterval(refreshQuotes, 30000)
+    return () => {
+      cancelled = true
+      clearInterval(timer)
+    }
   }, [list.map(s => s.symbol).join(',')]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -58,12 +74,18 @@ export default function WatchlistPage({ onSelectStock }) {
 
   function selectSuggestion(s) {
     setInput(s.symbol)
-    setSelectedInfo({ name: s.name, sector: s.sector || '' })
     setSuggestions([]); setShowDrop(false); setNoResults(false)
+    setSelectedSuggestion(s)
   }
 
   async function handleAdd() {
-    const sym = input.trim().replace(/\s/g, '')
+    const raw = input.trim()
+    const normalized = raw.replace(/\s/g, '')
+    const picked = selectedSuggestion || suggestions.find(s => {
+      const base = s.symbol.split('.')[0]
+      return s.symbol === normalized || base === normalized || s.name === raw
+    })
+    const sym = picked?.symbol || normalized
     if (!sym) return
 
     // Block pure Chinese input immediately (no timing dependency on debounce)
@@ -75,11 +97,15 @@ export default function WatchlistPage({ onSelectStock }) {
     setAdding(true); setErrMsg('')
     try {
       const data = await api.dashboard(sym)
-      // Prefer Chinese name from autocomplete selection over yfinance English name
-      const name = selectedInfo?.name || data.name || sym
-      const sector = selectedInfo?.sector || ''
-      await addToWatchlist({ symbol: data.symbol || sym, name, sector })
-      setInput(''); setSuggestions([]); setNoResults(false); setSelectedInfo(null)
+      await addToWatchlist({
+        symbol: data.symbol || picked?.symbol || sym,
+        name: picked?.name || data.name || sym,
+        sector: picked?.sector || data.sector || '',
+      })
+      setInput('')
+      setSelectedSuggestion(null)
+      setSuggestions([])
+      setNoResults(false)
     } catch (e) {
       setErrMsg(e.message || '找不到此股票')
     } finally {
@@ -93,13 +119,13 @@ export default function WatchlistPage({ onSelectStock }) {
         <div style={{ flex: 1, position: 'relative' }}>
           <input
             value={input}
-            onChange={e => { setInput(e.target.value); setErrMsg(''); setSelectedInfo(null) }}
+            onChange={e => { setInput(e.target.value); setSelectedSuggestion(null); setErrMsg('') }}
             onKeyDown={e => {
               if (e.key === 'Enter') { setShowDrop(false); handleAdd() }
               if (e.key === 'Escape') setShowDrop(false)
             }}
             onFocus={() => suggestions.length > 0 && setShowDrop(true)}
-            placeholder="輸入股票代號或中文名稱，例如 2330 / 台穌電"
+            placeholder="輸入股票代號或中文名稱，例如 2330 / 台積電"
             style={{
               width: '100%', padding: '8px 12px', boxSizing: 'border-box',
               background: 'var(--surface2)', border: '1px solid var(--border)',
@@ -165,16 +191,32 @@ export default function WatchlistPage({ onSelectStock }) {
         </div>
       )}
 
+      {list.length > 0 && (
+        <div style={{ color: 'var(--muted)', fontSize: 12, display: 'flex', justifyContent: 'flex-end' }}>
+          {refreshing ? '更新報價中…' : lastUpdated ? `報價更新於 ${lastUpdated.toLocaleTimeString('zh-TW', { hour12: false })}` : '等待報價更新…'}
+        </div>
+      )}
+
+      {/* ── Watchlist cards ── */}
       {list.length === 0 ? (
         <div className="loading" style={{ height: 200 }}>⭐ 還沒有自選股，在上方輸入代號加入吧！</div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 10 }}>
           {list.map(item => {
             const q = quotes[item.symbol]
+            const displayItem = {
+              ...item,
+              name: item.name && item.name !== item.symbol ? item.name : q?.name || item.name,
+              sector: item.sector || q?.sector || '',
+            }
             return (
-              <WatchCard key={item.symbol} item={item} quote={q}
-                onSelect={() => onSelectStock(item)}
-                onRemove={() => removeFromWatchlist(item.symbol)} />
+              <WatchCard
+                key={item.symbol}
+                item={displayItem}
+                quote={q}
+                onSelect={() => onSelectStock(displayItem)}
+                onRemove={() => removeFromWatchlist(item.symbol)}
+              />
             )
           })}
         </div>
